@@ -230,6 +230,67 @@
 .cat-bills  { background: #7b68ee; }
 
 /* ------------------------------------------------------------------ */
+/* Video modal                                                         */
+/* ------------------------------------------------------------------ */
+
+.video-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-modal.is-open { display: flex; }
+
+.video-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.video-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(760px, 92vw);
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.video-modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+}
+
+.video-modal-close:hover { opacity: 1; }
+
+.video-modal-body {
+    position: relative;
+    padding-top: 56.25%; /* 16:9 */
+}
+
+.video-modal-body iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ------------------------------------------------------------------ */
 /* Responsive                                                          */
 /* ------------------------------------------------------------------ */
 

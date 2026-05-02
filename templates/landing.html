@@ -24,7 +24,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-hero">Create free account</a>
-            <a href="#features" class="btn-hero">See how it works</a>
+            <a href="#" class="btn-hero" id="howItWorksBtn">See how it works</a>
         </div>
         <div class="hero-mockup">
             <div class="mockup-browser">
@@ -100,4 +100,51 @@
     </div>
 </section>
 
+<!-- Video modal -->
+<div class="video-modal" id="videoModal" aria-hidden="true">
+    <div class="video-modal-backdrop"></div>
+    <div class="video-modal-dialog">
+        <button class="video-modal-close" aria-label="Close">&times;</button>
+        <div class="video-modal-body">
+            <iframe id="videoFrame" src="" frameborder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var modal  = document.getElementById('videoModal');
+    var frame  = document.getElementById('videoFrame');
+    var YT_SRC = 'https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1';
+
+    function openModal() {
+        frame.src = YT_SRC;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+        frame.src = '';
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('howItWorksBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal();
+    });
+
+    modal.querySelector('.video-modal-close').addEventListener('click', closeModal);
+    modal.querySelector('.video-modal-backdrop').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeModal();
+    });
+}());
+</script>
 {% endblock %}
