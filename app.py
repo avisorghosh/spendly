@@ -1,3 +1,5 @@
+import re
+from datetime import date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
@@ -9,6 +11,26 @@ app.secret_key = "spendly-dev-secret"
 with app.app_context():
     init_db()
     seed_db()
+
+
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _valid_date(value):
+    return value if value and _DATE_RE.match(value) else None
+
+
+def _build_date_presets():
+    today = date.today()
+    first_of_month = today.replace(day=1)
+    last_month_end = first_of_month - timedelta(days=1)
+    last_month_start = last_month_end.replace(day=1)
+    return [
+        {"label": "This Month",    "date_from": first_of_month.isoformat(),               "date_to": today.isoformat()},
+        {"label": "Last Month",    "date_from": last_month_start.isoformat(),             "date_to": last_month_end.isoformat()},
+        {"label": "Last 3 Months", "date_from": (today - timedelta(days=90)).isoformat(), "date_to": today.isoformat()},
+        {"label": "All Time",      "date_from": None,                                     "date_to": None},
+    ]
 
 
 # ------------------------------------------------------------------ #
@@ -120,15 +142,29 @@ def profile():
         session.clear()
         return redirect(url_for("login"))
 
+    presets = _build_date_presets()
+
+    date_from = _valid_date(request.args.get("date_from"))
+    date_to   = _valid_date(request.args.get("date_to"))
+    if not (date_from and date_to):
+        date_from = date_to = None
+
+    active_range = "All Time"
+    for p in presets:
+        if date_from == p["date_from"] and date_to == p["date_to"]:
+            active_range = p["label"]
+            break
+
     initials = user["name"][0].upper()
-    stats = get_summary_stats(user_id)
-    expenses = get_recent_transactions(user_id)
-    categories = get_category_breakdown(user_id)
+    stats = get_summary_stats(user_id, date_from=date_from, date_to=date_to)
+    expenses = get_recent_transactions(user_id, date_from=date_from, date_to=date_to)
+    categories = get_category_breakdown(user_id, date_from=date_from, date_to=date_to)
 
     return render_template("profile.html",
                            user=user, initials=initials,
                            stats=stats, expenses=expenses,
-                           categories=categories)
+                           categories=categories,
+                           presets=presets, active_range=active_range)
 
 
 @app.route("/expenses/add")
