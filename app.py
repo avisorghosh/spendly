@@ -22,6 +22,8 @@ def landing():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
+        if session.get("user_id"):
+            return redirect(url_for("dashboard"))
         return render_template("register.html")
 
     name     = request.form.get("name", "").strip()
@@ -56,6 +58,8 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
+        if session.get("user_id"):
+            return redirect(url_for("dashboard"))
         return render_template("login.html")
 
     email    = request.form.get("email", "").strip().lower()
@@ -98,7 +102,10 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")
